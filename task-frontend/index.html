@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Frontend</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Gestionnaire de tâches</h1>
+      <p>Consomme l'API de tâches pour créer, terminer et supprimer.</p>
+    </header>
+
+    <section class="error-box hidden" id="errorBox"></section>
+
+    <section class="task-form">
+      <h2>Ajouter une tâche</h2>
+      <form id="newTaskForm">
+        <div class="field">
+          <label for="title">Titre</label>
+          <input type="text" id="title" name="title" required minlength="3" />
+        </div>
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="3"></textarea>
+        </div>
+        <button type="submit">Ajouter</button>
+      </form>
+    </section>
+
+    <section class="task-list">
+      <h2>Liste des tâches</h2>
+      <div id="loading">Chargement...</div>
+      <ul id="tasks"></ul>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
