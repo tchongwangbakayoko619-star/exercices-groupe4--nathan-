@@ -40,9 +40,27 @@ p {
   color: #475569;
 }
 
+.auth-card,
 .task-form,
 .task-list {
   margin-top: 22px;
+}
+
+.auth-card {
+  padding: 20px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.auth-status {
+  margin-top: 12px;
+  color: #475569;
+}
+
+.auth-status.connected {
+  color: #047857;
+  font-weight: 600;
 }
 
 .field {

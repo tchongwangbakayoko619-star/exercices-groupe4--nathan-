@@ -1,8 +1,11 @@
 const apiBase = 'http://127.0.0.1:8000/api';
 const tasksList = document.getElementById('tasks');
 const newTaskForm = document.getElementById('newTaskForm');
+const loginForm = document.getElementById('loginForm');
 const errorBox = document.getElementById('errorBox');
 const loadingIndicator = document.getElementById('loading');
+const authStatus = document.getElementById('authStatus');
+let token = localStorage.getItem('taskApiToken') || '';
 
 function showError(message) {
   errorBox.textContent = message;
@@ -14,9 +17,26 @@ function clearError() {
   errorBox.classList.add('hidden');
 }
 
+function updateAuthStatus(message, connected = false) {
+  authStatus.textContent = message;
+  authStatus.classList.toggle('connected', connected);
+}
+
+function getAuthHeaders() {
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 async function request(url, options = {}) {
   try {
-    const response = await fetch(url, options);
+    const headers = {
+      ...(options.headers || {}),
+      ...getAuthHeaders(),
+    };
+    const response = await fetch(url, { ...options, headers });
     const body = await response.json().catch(() => null);
     if (!response.ok) {
       const errorMessage = body?.detail || body?.error || body?.message || response.statusText;
@@ -90,10 +110,15 @@ async function loadTasks() {
   loadingIndicator.textContent = 'Chargement...';
   tasksList.innerHTML = '';
 
+  if (!token) {
+    loadingIndicator.textContent = 'Connectez-vous pour charger les tâches.';
+    updateAuthStatus("Vous devez vous connecter pour utiliser l'API.");
+    return;
+  }
+
   try {
     const tasks = await request(`${apiBase}/tasks/`, {
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
     });
     if (tasks.length === 0) {
       loadingIndicator.textContent = 'Aucune tâche trouvée.';
@@ -112,7 +137,6 @@ async function createTask(title, description) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, description }),
-    credentials: 'include',
   });
 }
 
@@ -121,19 +145,42 @@ async function updateTask(id, data) {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
-    credentials: 'include',
   });
 }
 
 async function deleteTask(id) {
-  const response = await fetch(`${apiBase}/tasks/${id}/`, {
+  return request(`${apiBase}/tasks/${id}/`, {
     method: 'DELETE',
-    credentials: 'include',
   });
-  if (!response.ok) {
-    throw new Error('Impossible de supprimer la tâche.');
-  }
 }
+
+loginForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  clearError();
+  const username = event.target.username.value.trim();
+  const password = event.target.password.value.trim();
+
+  if (!username || !password) {
+    showError('Nom d’utilisateur et mot de passe requis.');
+    return;
+  }
+
+  try {
+    const data = await request(`${apiBase}/auth/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    token = data.access;
+    localStorage.setItem('taskApiToken', token);
+    updateAuthStatus(`Connecté en tant que ${username}.`, true);
+    event.target.reset();
+    await loadTasks();
+  } catch (err) {
+    updateAuthStatus('Connexion impossible. Vérifiez vos identifiants.', false);
+    showError(err.message);
+  }
+});
 
 newTaskForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -154,4 +201,9 @@ newTaskForm.addEventListener('submit', async (event) => {
   }
 });
 
-window.addEventListener('DOMContentLoaded', loadTasks);
+window.addEventListener('DOMContentLoaded', () => {
+  if (token) {
+    updateAuthStatus('Token chargé depuis le navigateur.', true);
+  }
+  loadTasks();
+});

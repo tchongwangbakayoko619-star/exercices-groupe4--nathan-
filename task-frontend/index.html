@@ -15,6 +15,22 @@
 
     <section class="error-box hidden" id="errorBox"></section>
 
+    <section class="auth-card">
+      <h2>Connexion</h2>
+      <form id="loginForm">
+        <div class="field">
+          <label for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Se connecter</button>
+      </form>
+      <p id="authStatus" class="auth-status">Vous devez vous connecter pour utiliser l'API.</p>
+    </section>
+
     <section class="task-form">
       <h2>Ajouter une tâche</h2>
       <form id="newTaskForm">
