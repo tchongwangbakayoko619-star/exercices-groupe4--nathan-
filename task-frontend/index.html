@@ -1,54 +1,57 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task Frontend</title>
+  <title>TaskFlow - Task Management</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Gestionnaire de tâches</h1>
-      <p>Consomme l'API de tâches pour créer, terminer et supprimer.</p>
+      <h1>TaskFlow</h1>
+      <p>Professional Task Management System</p>
     </header>
 
     <section class="error-box hidden" id="errorBox"></section>
 
+    <!-- Authentication Section -->
     <section class="auth-card">
-      <h2>Connexion</h2>
+      <h2>Sign In</h2>
       <form id="loginForm">
         <div class="field">
-          <label for="username">Nom d'utilisateur</label>
+          <label for="username">Username</label>
           <input type="text" id="username" name="username" required />
         </div>
         <div class="field">
-          <label for="password">Mot de passe</label>
+          <label for="password">Password</label>
           <input type="password" id="password" name="password" required />
         </div>
-        <button type="submit">Se connecter</button>
+        <button type="submit">Sign In</button>
       </form>
-      <p id="authStatus" class="auth-status">Vous devez vous connecter pour utiliser l'API.</p>
+      <p id="authStatus" class="auth-status">Please sign in to access the task management features.</p>
     </section>
 
+    <!-- Add New Task -->
     <section class="task-form">
-      <h2>Ajouter une tâche</h2>
+      <h2>Create New Task</h2>
       <form id="newTaskForm">
         <div class="field">
-          <label for="title">Titre</label>
+          <label for="title">Task Title</label>
           <input type="text" id="title" name="title" required minlength="3" />
         </div>
         <div class="field">
           <label for="description">Description</label>
-          <textarea id="description" name="description" rows="3"></textarea>
+          <textarea id="description" name="description" rows="4" placeholder="Enter task details..."></textarea>
         </div>
-        <button type="submit">Ajouter</button>
+        <button type="submit">Create Task</button>
       </form>
     </section>
 
+    <!-- Task List -->
     <section class="task-list">
-      <h2>Liste des tâches</h2>
-      <div id="loading">Chargement...</div>
+      <h2>Tasks</h2>
+      <div id="loading" class="loading">Loading tasks...</div>
       <ul id="tasks"></ul>
     </section>
   </div>

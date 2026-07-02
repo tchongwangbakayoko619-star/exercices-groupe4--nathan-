@@ -1,192 +1,462 @@
+/* ==========================================================================
+   Task Frontend — Ledger-card aesthetic
+   A calm, professional utility tool: tasks are treated like index cards
+   in a ledger, with a "stamped" status badge as the signature element.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 :root {
-  color-scheme: light;
-  font-family: Inter, system-ui, sans-serif;
-  background: #f7fafc;
-  color: #1f2937;
+  /* Color: deep pine ledger palette (deliberately not the cream/terracotta
+     or near-black/neon defaults) */
+  --bg: #f4f5f1;
+  --surface: #ffffff;
+  --surface-sunken: #eef0ec;
+  --ink: #1a2e2a;
+  --muted: #62706b;
+  --border: #dce1dd;
+  --border-strong: #b9c2bc;
+
+  --primary: #24564c;
+  --primary-hover: #1b3f38;
+  --primary-tint: #e4ede9;
+
+  --done: #3f7d58;
+  --done-tint: #e7f1e9;
+  --pending: #a8762e;
+  --pending-tint: #f5ecdc;
+  --danger: #a23e33;
+  --danger-tint: #f6e6e3;
+  --danger-hover: #832f26;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-body: 'Public Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+  --shadow-card: 0 1px 2px rgba(26, 46, 42, 0.06), 0 1px 1px rgba(26, 46, 42, 0.04);
+  --shadow-raised: 0 4px 14px rgba(26, 46, 42, 0.10);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: radial-gradient(circle at top, #e0f2fe 0%, #f7fafc 55%);
+  background: var(--bg);
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px);
+  background-size: 100% 32px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
-  width: min(980px, 100%);
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.12);
-  padding: 28px;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
 }
+
+/* ---------- Header ---------- */
 
 header {
-  margin-bottom: 24px;
+  margin-bottom: 40px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--ink);
 }
 
-h1 {
-  margin: 0 0 8px;
-  font-size: clamp(2rem, 3vw, 2.6rem);
+header h1 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
-p {
+header p {
   margin: 0;
-  color: #475569;
+  color: var(--muted);
+  font-size: 0.95rem;
 }
+
+header p::before {
+  content: '— ';
+}
+
+/* ---------- Error box ---------- */
+
+.error-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  background: var(--danger-tint);
+  border: 1px solid var(--danger);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--danger-hover);
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+}
+
+.error-box::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: var(--surface);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---------- Shared card surfaces ---------- */
 
 .auth-card,
 .task-form,
 .task-list {
-  margin-top: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
-.auth-card {
-  padding: 20px;
-  border-radius: 18px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-}
-
-.auth-status {
-  margin-top: 12px;
-  color: #475569;
-}
-
-.auth-status.connected {
-  color: #047857;
+.auth-card h2,
+.task-form h2,
+.task-list h2 {
+  margin: 0 0 18px;
+  font-family: var(--font-display);
   font-weight: 600;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary);
 }
+
+/* Eyebrow-style numbering — meaningful here because these three cards are
+   the actual sequence of steps: connect, then add, then review. */
+.auth-card {
+  position: relative;
+}
+.auth-card h2::before   { content: '01  '; color: var(--border-strong); }
+.task-form h2::before   { content: '02  '; color: var(--border-strong); }
+.task-list h2::before   { content: '03  '; color: var(--border-strong); }
+
+/* ---------- Forms ---------- */
 
 .field {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.field:last-of-type {
+  margin-bottom: 20px;
 }
 
 label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-input,
+input[type='text'],
+input[type='password'],
 textarea {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 12px 14px;
-  font: inherit;
-  background: #f8fafc;
+  padding: 10px 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 textarea {
   resize: vertical;
+  min-height: 72px;
 }
 
-button {
+input[type='text']::placeholder,
+input[type='password']::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+input[type='text']:hover,
+input[type='password']:hover,
+textarea:hover {
+  border-color: var(--muted);
+}
+
+input[type='text']:focus,
+input[type='password']:focus,
+textarea:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+button[type='submit'] {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  padding: 12px 18px;
+  padding: 11px 22px;
+  background: var(--primary);
+  color: var(--surface);
   border: none;
-  border-radius: 999px;
-  background: #0f766e;
-  color: white;
-  font-weight: 700;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
-button:hover {
-  background: #115e59;
+button[type='submit']:hover {
+  background: var(--primary-hover);
 }
 
-.error-box {
-  padding: 16px;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
-  background: #fef2f2;
-  color: #991b1b;
-  margin-bottom: 18px;
+button[type='submit']:active {
+  transform: translateY(1px);
 }
 
-.hidden {
-  display: none;
+button[type='submit']:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Auth status ---------- */
+
+.auth-status {
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.auth-status::before {
+  content: '● ';
+  color: var(--pending);
+}
+
+.auth-status.connected {
+  color: var(--done);
+}
+
+.auth-status.connected::before {
+  content: '● ';
+  color: var(--done);
+}
+
+/* ---------- Task list ---------- */
+
+#loading {
+  padding: 20px 0;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  text-align: center;
 }
 
 #tasks {
   list-style: none;
-  padding: 0;
   margin: 0;
-  display: grid;
-  gap: 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .task-item {
-  padding: 18px;
-  border-radius: 18px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  display: grid;
-  gap: 12px;
+  position: relative;
+  padding: 16px 18px 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--pending);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .task-item.done {
-  background: #ecfdf5;
-  border-color: #86efac;
+  border-left-color: var(--done);
+  background: var(--done-tint);
 }
 
 .task-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
 }
 
 .task-title {
   margin: 0;
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+/* The signature element: a stamped status mark, tilted like an ink stamp
+   on a ledger card. */
+.task-title::before {
+  content: 'PENDING';
+  display: inline-block;
+  margin-right: 10px;
+  padding: 1px 7px;
+  border: 1.5px solid var(--pending);
+  border-radius: 3px;
+  color: var(--pending);
+  background: var(--pending-tint);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transform: rotate(-3deg);
+  vertical-align: middle;
+}
+
+.task-title.done::before {
+  content: 'DONE';
+  border-color: var(--done);
+  color: var(--done);
+  background: var(--done-tint);
 }
 
 .task-title.done {
+  color: var(--muted);
   text-decoration: line-through;
-  color: #475569;
+  text-decoration-color: var(--border-strong);
+  text-decoration-thickness: 1.5px;
+}
+
+.task-row small {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
 }
 
 .task-description {
-  margin: 0;
-  white-space: pre-wrap;
-  color: #475569;
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.task-item.done .task-description {
+  color: var(--muted);
 }
 
 .task-actions {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .task-actions button {
-  background: #e2e8f0;
-  color: #0f172a;
-  padding: 9px 12px;
-  border-radius: 999px;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.task-actions button.done-btn {
-  background: #10b981;
-  color: white;
+.done-btn {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
 }
 
-.task-actions button.delete-btn {
-  background: #ef4444;
-  color: white;
+.done-btn:hover {
+  background: var(--primary);
+  color: var(--surface);
 }
 
-#loading {
-  color: #475569;
+.delete-btn {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: var(--surface);
+}
+
+.task-actions button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .container {
+    padding: 32px 16px 72px;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+  }
+
+  .auth-card,
+  .task-form,
+  .task-list {
+    padding: 18px;
+  }
+
+  .task-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .task-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
